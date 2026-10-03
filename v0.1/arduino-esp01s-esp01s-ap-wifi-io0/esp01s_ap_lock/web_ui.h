@@ -187,7 +187,7 @@ const char PAGE_ADMIN[] PROGMEM = R"rawliteral(
     <!-- 门锁控制 -->
     <section class="tabpane" id="tab-lock">
       <div class="card">
-        <div class="card-hd"><h3>开锁动作</h3><span class="hint">IO0 置高供电 → IO1 输出 PWM → 归位 → IO0 断电</span></div>
+        <div class="card-hd"><h3>开锁动作</h3><span class="hint">IO0 置高供电 → IO2 输出 PWM → 归位 → IO0 断电</span></div>
         <div class="stat-grid" style="margin-bottom:14px">
           <div class="stat"><div class="k">门锁状态</div><div class="v small" id="stLock">--</div></div>
           <div class="stat"><div class="k">供电 (IO0)</div><div class="v small" id="stPwr">--</div></div>

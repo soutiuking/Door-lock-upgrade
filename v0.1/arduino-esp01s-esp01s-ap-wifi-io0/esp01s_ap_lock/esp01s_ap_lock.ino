@@ -16,10 +16,9 @@
  *            ⚠ IO0 只能作为 MOSFET/三极管的控制脚，绝不可直接带动舵机！
  *            ⚠ IO0 是启动模式脚：上电瞬间必须为高（ESP-01S 板载 10K 上拉已
  *              满足），固件起来后才拉低断电，属正常运行行为。
- *   · IO1  = 舵机 PWM 信号（50Hz）
- *            ⚠ IO1 即 TXD0。使用串口打印会干扰舵机信号，因此默认
- *              ENABLE_SERIAL = 0；若需串口调试，请把 PIN_SERVO_SIG 改为 3(RX)
- *              或改用其它空闲脚，并把 ENABLE_SERIAL 置 1。
+ *   · IO2  = 舵机 PWM 信号（50Hz）
+ *            ⚠ GPIO2 是启动配置脚，ESP8266 复位/启动期间必须保持高电平；
+ *              舵机应在启动时断电，且外部电路不能把 GPIO2 强制拉低。
  *
  *  默认参数
  *   · AP 名称  LockGate-<芯片ID>      密码 88888888    地址 192.168.4.1
@@ -42,8 +41,8 @@
 
 /* ------------------------- 引脚与常量 ------------------------- */
 #define PIN_SERVO_PWR   0       // IO0：舵机供电开关（外接 MOS 管）
-#define PIN_SERVO_SIG   1       // IO1：舵机 PWM 信号
-#define ENABLE_SERIAL   0       // 使用 IO1 输出 PWM 时必须为 0
+#define PIN_SERVO_SIG   2       // IO2：舵机 PWM 信号
+#define ENABLE_SERIAL   0       // 默认关闭串口日志；GPIO2 不占用 UART TX
 
 #define DEBUG_MODE      1       // 0 = 正常模式（5 分钟开 1 分钟省电）；1 = 调试模式（WiFi 常开）
 
@@ -53,9 +52,9 @@
 
 #define WIFI_DUTY_PERIOD_MS  (5UL * 60UL * 1000UL)       // 占空比周期：5 分钟
 #define WIFI_DUTY_ON_MS      (1UL * 60UL * 1000UL)       // 其中开启：1 分钟
-#define SERVO_POWER_SETTLE_MS 350                        // Wait for MG996R supply to stabilize
-#define SERVO_MIN_US          600                        // MG996R minimum pulse width
-#define SERVO_MAX_US          2400                       // MG996R maximum pulse width
+#define SERVO_POWER_SETTLE_MS 500                        // Wait for SG90 5 V supply to stabilize
+#define SERVO_MIN_US          500                        // SG90 nominal minimum pulse width
+#define SERVO_MAX_US          2400                       // SG90 practical maximum pulse width
 #define SERVO_PWR_ACTIVE_LEVEL HIGH                      // Change to LOW for an active-low power switch
 #define TOKEN_VALID_MS       (30UL * 60UL * 1000UL)      // 后台会话 30 分钟
 #define WIFI_POLICY_TICK_MS  250                         // 策略检查节流，优先保证 HTTP 响应
@@ -142,7 +141,7 @@ static bool saveConfigNow() {
 }
 
 /* ============================================================================
- *  舵机控制（需求一：IO0 供电开关 + IO1 PWM）
+ *  舵机控制（需求一：IO0 供电开关 + IO2 PWM）
  * ============================================================================ */
 static void servoPower(bool on) {
   pwrOn = on;
@@ -150,13 +149,21 @@ static void servoPower(bool on) {
 }
 
 static void servoAttachSignal() {
-  if (!servo.attached()) servo.attach(PIN_SERVO_SIG, SERVO_MIN_US, SERVO_MAX_US);
+  if (!servo.attached()) {
+    // Hold GPIO2 low before Servo takes ownership so attach does not create
+    // a false pulse at the SG90 input after the ESP8266 has booted.
+    digitalWrite(PIN_SERVO_SIG, LOW);
+    pinMode(PIN_SERVO_SIG, OUTPUT);
+    servo.attach(PIN_SERVO_SIG, SERVO_MIN_US, SERVO_MAX_US);
+  }
 }
 
 static void servoDetachSignal() {
   if (servo.attached()) servo.detach();
-  // Release signal to prevent back-powering an unpowered servo through its signal wire.
-  pinMode(PIN_SERVO_SIG, INPUT);
+  // Do not leave GPIO2 floating. A floating SG90 signal input commonly reads
+  // about 0.5~1 V on a multimeter and may pick up noise or feed current back.
+  digitalWrite(PIN_SERVO_SIG, LOW);
+  pinMode(PIN_SERVO_SIG, OUTPUT);
 }
 
 static uint16_t servoAngleToUs(uint16_t angle) {
@@ -842,7 +849,8 @@ void setup() {
 
   pinMode(PIN_SERVO_PWR, OUTPUT);
   digitalWrite(PIN_SERVO_PWR, !SERVO_PWR_ACTIVE_LEVEL);  // Servo power off by default
-  pinMode(PIN_SERVO_SIG, INPUT);                         // No PWM output by default
+  digitalWrite(PIN_SERVO_SIG, LOW);
+  pinMode(PIN_SERVO_SIG, OUTPUT);                        // PWM off: hold SG90 signal at 0 V
 
   store.begin();
   loadConfig();
