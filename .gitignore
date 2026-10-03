@@ -1,0 +1,20 @@
+﻿# Arduino build products
+build/
+*.elf
+*.hex
+*.bin
+*.map
+*.o
+*.d
+
+# IDE/local metadata
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Local notes and generated scratch files
+
+# Local compile output/log notes
+新建 文本文档.txt
