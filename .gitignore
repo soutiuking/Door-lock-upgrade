@@ -1,0 +1,14 @@
+/.validation/
+/versions/v0.2/Debug/*
+!/versions/v0.2/Debug/doorup.lkf
+/versions/v0.2/Release/*
+!/versions/v0.2/Release/doorup.lkf
+*.o
+*.sm8
+*.elf
+*.hex
+*.bin
+/versions/v0.2/*.wdb
+/versions/v0.2/*.wed
+/versions/v0.2/*.pdb
+/versions/v0.2/*.dep

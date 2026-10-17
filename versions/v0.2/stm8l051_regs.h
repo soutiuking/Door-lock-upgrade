@@ -1,0 +1,46 @@
+#ifndef STM8L051_REGS_H
+#define STM8L051_REGS_H
+
+/* STM8L051F3 / RM0031 register layout, NOT the STM8S layout. */
+#ifndef REG8
+#define REG8(a) (*(volatile unsigned char *)(a))
+#endif
+#define PA_DDR       REG8(0x5002)
+#define PA_CR1       REG8(0x5003)
+#define PA_CR2       REG8(0x5004)
+#define PB_IDR       REG8(0x5006)
+#define PB_DDR       REG8(0x5007)
+#define PB_CR1       REG8(0x5008)
+#define PB_CR2       REG8(0x5009)
+#define PC_ODR       REG8(0x500A)
+#define PC_IDR       REG8(0x500B)
+#define PC_DDR       REG8(0x500C)
+#define PC_CR1       REG8(0x500D)
+#define PC_CR2       REG8(0x500E)
+#define PD_DDR       REG8(0x5011)
+#define PD_CR1       REG8(0x5012)
+#define PD_CR2       REG8(0x5013)
+#define EXTI_CR1     REG8(0x50A0)
+#define EXTI_SR1     REG8(0x50A3)
+#define EXTI_SR2     REG8(0x50A4)
+#define EXTI_CONF1   REG8(0x50A5)
+#define PWR_CSR1     REG8(0x50B2)
+#define PWR_CSR2     REG8(0x50B3)
+#define CLK_CKDIVR   REG8(0x50C0)
+#define CLK_CRTCR    REG8(0x50C1)
+#define CLK_ICKCR    REG8(0x50C2)
+#define CLK_PCKENR1  REG8(0x50C3)
+#define CLK_PCKENR2  REG8(0x50C4)
+#define CLK_CCOR     REG8(0x50C5)
+#define CLK_ECKCR    REG8(0x50C6)
+#define CLK_CBEEPR   REG8(0x50CB)
+#define CLK_PCKENR3  REG8(0x50D0)
+#define TIM4_CR1     REG8(0x52E0)
+#define TIM4_IER     REG8(0x52E4)
+#define TIM4_SR1     REG8(0x52E5)
+#define TIM4_EGR     REG8(0x52E6)
+#define TIM4_CNTR    REG8(0x52E7)
+#define TIM4_PSCR    REG8(0x52E8)
+#define TIM4_ARR     REG8(0x52E9)
+
+#endif
