@@ -9,5 +9,5 @@ Dependencies=
 
 [Options]
 ActiveProject=doorup
-ActiveConfig=Debug
+ActiveConfig=Release
 AddSortedElements=1

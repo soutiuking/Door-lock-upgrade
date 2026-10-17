@@ -2,7 +2,7 @@
 #include "stm8l051_regs.h"
 /* TEMPORARY DIAGNOSTIC: set to 0 to restore normal knock/boot-mode logic. */
 #ifndef FORCE_PC4_HIGH_TEST
-#define FORCE_PC4_HIGH_TEST 1
+#define FORCE_PC4_HIGH_TEST 0
 #endif
 
 #if !FORCE_PC4_HIGH_TEST
